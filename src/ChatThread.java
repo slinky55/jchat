@@ -3,7 +3,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ChatThread implements Runnable {
-
     public Socket socket;
     public BufferedReader in;
     public PrintWriter out;

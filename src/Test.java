@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class Test {
@@ -119,6 +120,15 @@ public class Test {
                 e.printStackTrace();
             }
         }).start();
+
+        // GUI update
+        new Thread(() -> {
+            while (true) {
+                if (!Objects.equals(currentChat, "")) {
+                    chatView.setText(chatThreads.get(currentChat).chatLog);
+                }
+            }
+        });
 
         connectViaIp.addActionListener(e -> {
             connectPanel.setVisible(true);
