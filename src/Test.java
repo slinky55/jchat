@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import static java.lang.Thread.sleep;
+
 public class Test {
 
     /*
@@ -122,16 +124,15 @@ public class Test {
         }).start();
 
         // GUI update thread
-        // TODO: Make this more efficient
         new Thread(() -> {
-            String lastLog = "";
             while (true) {
-                if (currentChat.equals("")) {
-                    continue;
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                if (!Objects.equals(lastLog, chatThreads.get(currentChat).chatLog)) {
+                if (!currentChat.equals("")) {
                     chatView.setText(chatThreads.get(currentChat).chatLog);
-                    lastLog = chatThreads.get(currentChat).chatLog;
                 }
             }
         }).start();
