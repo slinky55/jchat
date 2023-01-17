@@ -122,13 +122,14 @@ public class Test {
         }).start();
 
         // GUI update
+        // TODO: Make this more efficient
         new Thread(() -> {
             while (true) {
                 if (!Objects.equals(currentChat, "")) {
                     chatView.setText(chatThreads.get(currentChat).chatLog);
                 }
             }
-        });
+        }).start();
 
         connectViaIp.addActionListener(e -> {
             connectPanel.setVisible(true);
