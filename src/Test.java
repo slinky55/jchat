@@ -126,6 +126,9 @@ public class Test {
         new Thread(() -> {
             String lastLog = "";
             while (true) {
+                if (currentChat.equals("")) {
+                    continue;
+                }
                 if (!Objects.equals(lastLog, chatThreads.get(currentChat).chatLog)) {
                     chatView.setText(chatThreads.get(currentChat).chatLog);
                     lastLog = chatThreads.get(currentChat).chatLog;
