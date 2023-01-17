@@ -16,6 +16,8 @@ public class ChatThread implements Runnable {
         this.socket = socket;
         this.in = in;
         this.out = out;
+
+        new Thread(this).start();
     }
 
     @Override
