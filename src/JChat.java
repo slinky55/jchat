@@ -1,16 +1,14 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.sql.Array;
+import java.util.ArrayList;
 
 public class JChat {
+    ArrayList<Thread> connectionThreads = new ArrayList<>();
+
     String chatLog = "";
 
     private JFrame frame = new JFrame();
@@ -29,14 +27,12 @@ public class JChat {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-
     JChat() {
         frame.setTitle("jchat");
         frame.setSize(300, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
-        menuBar.add(host);
         menuBar.add(connect);
 
         chatView.setEditable(false);
