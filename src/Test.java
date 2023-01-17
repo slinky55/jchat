@@ -121,12 +121,14 @@ public class Test {
             }
         }).start();
 
-        // GUI update
+        // GUI update thread
         // TODO: Make this more efficient
         new Thread(() -> {
+            String lastLog = "";
             while (true) {
-                if (!Objects.equals(currentChat, "")) {
+                if (!Objects.equals(lastLog, chatThreads.get(currentChat).chatLog)) {
                     chatView.setText(chatThreads.get(currentChat).chatLog);
+                    lastLog = chatThreads.get(currentChat).chatLog;
                 }
             }
         }).start();
