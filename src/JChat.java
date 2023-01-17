@@ -3,33 +3,32 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.net.*;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class JChat {
+    String chatLog = "";
 
-    ArrayDeque<Message> outgoing = new ArrayDeque<>();
-    ArrayDeque<Message> incoming = new ArrayDeque<>();
+    private JFrame frame = new JFrame();
 
-    public boolean connected = false;
+    private JMenuBar menuBar = new JMenuBar();
+    private JButton connect = new JButton("Connect to host");
+    private JButton host = new JButton("Host channel");
 
-    // UI Objects
-    public JFrame frame = new JFrame();
+    private JTextArea chatView = new JTextArea();
 
-    public JMenuBar menuBar = new JMenuBar();
-    public JButton connect = new JButton("Connect to host");
-    public JButton host = new JButton("Host channel");
+    private JPanel messageBar = new JPanel();
+    private JButton sendButton = new JButton("Send");
+    private JTextField messageField = new JTextField(16);
 
-    public JPanel chatView = new JPanel();
-    public JTextField counter = new JTextField(3);
-
-    public JPanel messageBar = new JPanel();
-    public JButton sendButton = new JButton("Send");
-    public JTextField messageField = new JTextField(16);
-
-    public ServerSocket serverSocket;
-    public Socket socket;
+    private ServerSocket serverSocket;
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
     JChat() {
         frame.setTitle("jchat");
@@ -40,7 +39,7 @@ public class JChat {
         menuBar.add(host);
         menuBar.add(connect);
 
-        chatView.add(counter);
+        chatView.setEditable(false);
 
         messageBar.add(messageField);
         messageBar.add(sendButton);
@@ -51,23 +50,78 @@ public class JChat {
 
         frame.setVisible(true);
 
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                outgoing.add(new Message(messageField.getText()));
-                messageField.setText("");
+        sendButton.addActionListener(e -> {
+            out.println(messageField.getText());
+            chatLog += ("You: " + messageField.getText() + "\n");
+            chatView.setText(chatLog);
+            out.flush();
+            messageField.setText("");
+        });
+
+        host.addActionListener(e -> {
+            try {
+                serverSocket = new ServerSocket(7575);
+                socket = serverSocket.accept();
+                chatLog += "User connected!\n";
+                chatView.setText(chatLog);
+                out = new PrintWriter(socket.getOutputStream());
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                new Thread(() -> {
+                    String msg;
+                    try {
+                        msg = in.readLine();
+                        while (msg != null) {
+                            chatLog += ("Them: " + msg + "\n");
+                            chatView.setText(chatLog);
+                            msg = in.readLine();
+                        }
+                        chatLog += "User disconnected!\n";
+                        chatView.setText(chatLog);
+                        out.close();
+                        socket.close();
+                        serverSocket.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }).start();
+            } catch (IOException ex) {
+                chatView.setText("Failed to start server\n" + ex.getMessage());
+            }
+        });
+
+        connect.addActionListener(e -> {
+            try {
+                socket = new Socket("127.0.0.1", 7575);
+                chatLog += "Connected!\n";
+                chatView.setText(chatLog);
+                out = new PrintWriter(socket.getOutputStream());
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                new Thread(() -> {
+                    String msg;
+                    try {
+                        msg = in.readLine();
+                        while (msg != null) {
+                            chatLog += ("Them: " + msg + "\n");
+                            chatView.setText(chatLog);
+                            msg = in.readLine();
+                        }
+                        chatLog += "User disconnected!\n";
+                        chatView.setText(chatLog);
+                        out.close();
+                        socket.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }).start();
+            } catch (IOException ex) {
+                chatView.setText("Failed to connect to host\n" + ex.getMessage());
             }
         });
     }
 
-    public void run() {
-        while (true) {
-            counter.setText(String.valueOf(outgoing.size()));
-
-            for (Message m : outgoing) {
-                System.out.println(m.text);
-                outgoing.remove(m);
-            }
-        }
+    public static void main(String[] args) {
+        new JChat();
     }
 }
