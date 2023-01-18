@@ -1,8 +1,11 @@
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ChatThread implements Runnable {
+
+    public JMenuItem menuItem;
     public Socket socket;
     public BufferedReader in;
     public PrintWriter out;
